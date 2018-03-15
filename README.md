@@ -1,7 +1,6 @@
 # docker-geoserver
 
-A simple docker container that runs Geoserver influenced by this docker
-recipe: https://github.com/eliotjordan/docker-geoserver/blob/master/Dockerfile
+A simple docker container that runs Geoserver in Tomcat ROOT directory, forked from https://github.com/kartoza/docker-geoserver
 
 ## Getting the image
 
@@ -12,7 +11,7 @@ get our docker trusted build like this:
 
 
 ```shell
-docker pull kartoza/geoserver
+docker pull xavis/geoserver
 ```
 
 ### Pre-downloading files
@@ -31,7 +30,7 @@ You can change the variables based on [geoserver container considerations](http:
 To build yourself with a local checkout:
 
 ```shell
-git clone git://github.com/kartoza/docker-geoserver
+git clone git://github.com/xavis/docker-geoserver
 cd docker-geoserver
 ./build.sh
 ```
@@ -42,7 +41,7 @@ cd docker-geoserver
 To replace OpenJDK Java with the Oracle JDK, set build-arg `ORACLE_JDK=true`:
 
 ```shell
-docker build --build-arg ORACLE_JDK=true -t kartoza/geoserver .
+docker build --build-arg ORACLE_JDK=true -t xavis/geoserver .
 ```
 
 Alternatively, you can download the Oracle JDK 7 Linux x64 tar.gz currently in use by
@@ -60,14 +59,6 @@ download the plugin zip files from the GeoServer download page and put them in
 `resources/plugins` before building. You should also download the matching version
 GeoServer WAR zip file to `resources/geoserver.zip`.
 
-### Removing Tomcat extras during build
-
-To remove Tomcat extras including docs, examples, and the manager webapp, set the
-`TOMCAT_EXTRAS` build-arg to `false`:
-
-```shell
-docker build --build-arg TOMCAT_EXTRAS=false -t kartoza/geoserver .
-```
 
 ### Building with file system overlays (advanced)
 
@@ -89,8 +80,8 @@ You probably want to also have postgis running too. To create a running
 container do:
 
 ```shell
-docker run --name "postgis" -d -t kartoza/postgis:9.4-2.1
-docker run --name "geoserver"  --link postgis:postgis -p 8080:8080 -d -t kartoza/geoserver
+docker run --name "postgis" -d -t xavis/postgis:9.4-2.1
+docker run --name "geoserver"  --link postgis:postgis -p 8080:8080 -d -t xavis/geoserver
 ```
 
 You can also use the following environment variables to pass a 
@@ -165,37 +156,6 @@ a reliable backup system), or use host based volumes (you will need
 to modify the ``docker-compose.yml``` example to do this) so that
 your data persists between invocations of the compose file.
 
-## Run (automated using rancher)
-
-An even nicer way to run the examples provided is to use our Rancher
-Catalogue Stack for GeoServer. See [http://rancher.com](http://rancher.com) 
-for more details on how to set up and configure your Rancher 
-environment. Once Rancher is set up, use the Admin -> Settings menu to 
-add our Rancher catalogue using this URL:
-
-https://github.com/kartoza/kartoza-rancher-catalogue
-
-Once your settings are saved open a Rancher environment and set up a 
-stack from the catalogue's 'Kartoza' section - you will see 
-GeoServer listed there.
-
-If you want to synchronise your GeoServer settings and database backups
-(created by the nightly backup tool in the stack), use (Resilio 
-sync)[https://www.resilio.com/] to create two Read/Write keys:
-
-* one for database backups
-* one for GeoServer media backups
-
-**Note:** Resilio sync is not Free Software. It is free to use for
-individuals. Business users need to pay - see their web site for details.
-
-
-You can try a similar approach with Syncthing or Seafile (for free options) 
-or Dropbox or Google Drive if you want to use another commercial product. These
-products all have one limitation though: they require interaction 
-to register applications or keys. With Resilio Sync you can completely 
-automate the process without user intervention. 
-
 ## Storing data on the host rather than the container.
 
 Docker volumes can be used to persist your data.
@@ -211,14 +171,14 @@ unzip /tmp/geoserver-${GS_VERSION}/geoserver.war -d /tmp/geoserver-${GS_VERSION}
 mv /tmp/geoserver-${GS_VERSION}/geoserver/data ~/geoserver_data
 rm -r  /tmp/geoserver-${GS_VERSION} && cp controlflow.properties ~/geoserver_data
 chmod -R a+rwx ~/geoserver_data
-docker run -d -p 8580:8080 --name "geoserver" -v $HOME/geoserver_data:/opt/geoserver/data_dir kartoza/geoserver:${GS_VERSION}
+docker run -d -p 8580:8080 --name "geoserver" -v $HOME/geoserver_data:/opt/geoserver/data_dir xavis/geoserver:${GS_VERSION}
 
 ```
 Create an empty data directory to use to persist your data.
 
 ```shell
 mkdir -p ~/geoserver_data
-docker run -d -v $HOME/geoserver_data:/opt/geoserver/data_dir kartoza/geoserver
+docker run -d -v $HOME/geoserver_data:/opt/geoserver/data_dir xavis/geoserver
 ```
 
 You need to ensure the ``geoserver_data`` directory has sufficient permissions
@@ -241,7 +201,7 @@ JAVA_OPTS="$JAVA_OPTS -Djava.awt.headless=true -XX:+UseConcMarkSweepGC -XX:+CMSC
 Then pass the `setenv.sh` file as a volume at `/usr/local/tomcat/bin/setenv.sh` when running:
 
 ```shell
-docker run -d -v $HOME/setenv.sh:/usr/local/tomcat/bin/setenv.sh kartoza/geoserver
+docker run -d -v $HOME/setenv.sh:/usr/local/tomcat/bin/setenv.sh xavis/geoserver
 ```
 
 
@@ -250,3 +210,4 @@ docker run -d -v $HOME/setenv.sh:/usr/local/tomcat/bin/setenv.sh kartoza/geoserv
 * Tim Sutton (tim@kartoza.com)
 * Shane St Clair (shane@axiomdatascience.com)
 * Alex Leith (alexgleith@gmail.com)
+* Javier Sánchez (me@xaviscript.com)
