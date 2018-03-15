@@ -20,7 +20,7 @@ ENV GEOSERVER_DATA_DIR /opt/geoserver/data_dir
 ENV GEOSERVER_OPTS "-Djava.awt.headless=true -server -Xms2G -Xmx4G -Xrs -XX:PerfDataSamplingInterval=500 \
  -Dorg.geotools.referencing.forceXY=true -XX:SoftRefLRUPolicyMSPerMB=36000 -XX:+UseParallelGC -XX:NewRatio=2 \
  -XX:+CMSClassUnloadingEnabled"
-#-XX:+UseConcMarkSweepGC use this rather than parallel GC?  
+#-XX:+UseConcMarkSweepGC use this rather than parallel GC?
 ENV JAVA_OPTS "$JAVA_OPTS $GEOSERVER_OPTS"
 ENV GDAL_DATA /usr/local/gdal_data
 ENV LD_LIBRARY_PATH /usr/local/gdal_native_libs:/usr/local/apr/lib:/opt/libjpeg-turbo/lib64
@@ -125,15 +125,16 @@ RUN if [ ! -f /tmp/resources/geoserver-${GS_VERSION}.zip ]; then \
       -O /tmp/resources/geoserver-${GS_VERSION}.zip; \
     fi; \
     unzip /tmp/resources/geoserver-${GS_VERSION}.zip -d /tmp/geoserver \
-    && unzip /tmp/geoserver/geoserver.war -d $CATALINA_HOME/webapps/geoserver \
-    && rm -rf $CATALINA_HOME/webapps/geoserver/data \
+    && rm /
+    && unzip /tmp/geoserver/geoserver.war -d $CATALINA_HOME/webapps/ROOT \
+    && rm -rf $CATALINA_HOME/webapps/ROOT/data \
     && rm -rf /tmp/geoserver
 
 # Install any plugin zip files in resources/plugins
 RUN if ls /tmp/resources/plugins/*.zip > /dev/null 2>&1; then \
       for p in /tmp/resources/plugins/*.zip; do \
         unzip $p -d /tmp/gs_plugin \
-        && mv /tmp/gs_plugin/*.jar $CATALINA_HOME/webapps/geoserver/WEB-INF/lib/ \
+        && mv /tmp/gs_plugin/*.jar $CATALINA_HOME/webapps/ROOT/WEB-INF/lib/ \
         && rm -rf /tmp/gs_plugin; \
       done; \
     fi; \
@@ -149,15 +150,11 @@ RUN rm -f /tmp/resources/overlays/README.txt && \
       cp -rf /tmp/resources/overlays/* /; \
     fi;
 
-# Optionally remove Tomcat manager, docs, and examples
-ARG TOMCAT_EXTRAS=true
-RUN if [ "$TOMCAT_EXTRAS" = false ]; then \
-    rm -rf $CATALINA_HOME/webapps/ROOT && \
-    rm -rf $CATALINA_HOME/webapps/docs && \
+RUN rm -rf $CATALINA_HOME/webapps/docs && \
     rm -rf $CATALINA_HOME/webapps/examples && \
     rm -rf $CATALINA_HOME/webapps/host-manager && \
-    rm -rf $CATALINA_HOME/webapps/manager; \
-  fi;
+    rm -rf $CATALINA_HOME/webapps/manager;
+
 
 # Delete resources after installation
 RUN rm -rf /tmp/resources

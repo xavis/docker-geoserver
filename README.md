@@ -11,18 +11,18 @@ get our docker trusted build like this:
 
 
 ```shell
-docker pull xavis/geoserver
+docker pull xaviscript/geoserver
 ```
 
 ### Pre-downloading files
 
 Inspect downloads.sh to confirm which files you want, then run `.downloads.sh.`
 
-If you don't make changes it will download Oracle Java and various Oracle and Geoserver extensions that will be used during the Docker build. 
+If you don't make changes it will download Oracle Java and various Oracle and Geoserver extensions that will be used during the Docker build.
 
 ### Setting Tomcat properties during build
 
-The  Tomcat properties such as maximum heap memory size are included in the Dockerfile. You need to change them 
+The  Tomcat properties such as maximum heap memory size are included in the Dockerfile. You need to change them
 them before building the image in accordance to the resources available on your server:
 
 You can change the variables based on [geoserver container considerations](http://docs.geoserver.org/stable/en/user/production/container.html)
@@ -41,7 +41,7 @@ cd docker-geoserver
 To replace OpenJDK Java with the Oracle JDK, set build-arg `ORACLE_JDK=true`:
 
 ```shell
-docker build --build-arg ORACLE_JDK=true -t xavis/geoserver .
+docker build --build-arg ORACLE_JDK=true -t xaviscript/geoserver .
 ```
 
 Alternatively, you can download the Oracle JDK 7 Linux x64 tar.gz currently in use by
@@ -76,22 +76,22 @@ Overlay files will overwrite existing destination files, so be careful!
 **Note:** You probably want to use docker-compose for running as it will provide
 a repeatable orchestrated deployment system.
 
-You probably want to also have postgis running too. To create a running 
+You probably want to also have postgis running too. To create a running
 container do:
 
 ```shell
 docker run --name "postgis" -d -t xavis/postgis:9.4-2.1
-docker run --name "geoserver"  --link postgis:postgis -p 8080:8080 -d -t xavis/geoserver
+docker run --name "geoserver"  --link postgis:postgis -p 8080:8080 -d -t xaviscript/geoserver
 ```
 
-You can also use the following environment variables to pass a 
+You can also use the following environment variables to pass a
 user name and password. To postgis:
 
-* -e USERNAME=<PGUSER> 
+* -e USERNAME=<PGUSER>
 * -e PASS=<PGPASSWORD>
 
 These will be used to create a new superuser with
-your preferred credentials. If these are not specified then the postgresql 
+your preferred credentials. If these are not specified then the postgresql
 user is set to 'docker' with password 'docker'.
 
 **Note:** The default geoserver user is 'admin' and the password is 'geoserver'.
@@ -104,10 +104,10 @@ how you can establish a GeoServer + Postgis orchestrated environment
 with nightly backups that are synchronised to your backup server
 via btsync.
 
-If you are **not** interested in the backups and btsync options, comment 
+If you are **not** interested in the backups and btsync options, comment
 out those services in the ``docker-compose.yml`` file.
 
-Please read the ``docker-compose`` 
+Please read the ``docker-compose``
 [documentation](https://docs.docker.com/compose/) for details
 on usage and syntax of ``docker-compose`` - it is not covered here.
 
@@ -116,7 +116,7 @@ on your desktop NAS or other backup  destination and create two
 folders:
 
 * one for database backup dumps
-* one for geoserver data dir 
+* one for geoserver data dir
 
 Then make a copy of each of the provided EXAMPLE environment files e.g.:
 
@@ -149,10 +149,10 @@ docker-compose up -d
 ```
 
 **Note:** The ``docker-compose.yml`` **does not use persistent storage** so
-when you remove the containers, **all data will be lost**. Either set up 
-btsync (and test to verify that your backups are working, we take 
-**no responsibiliy** if the examples provided here do not produce 
-a reliable backup system), or use host based volumes (you will need 
+when you remove the containers, **all data will be lost**. Either set up
+btsync (and test to verify that your backups are working, we take
+**no responsibiliy** if the examples provided here do not produce
+a reliable backup system), or use host based volumes (you will need
 to modify the ``docker-compose.yml``` example to do this) so that
 your data persists between invocations of the compose file.
 
@@ -171,14 +171,14 @@ unzip /tmp/geoserver-${GS_VERSION}/geoserver.war -d /tmp/geoserver-${GS_VERSION}
 mv /tmp/geoserver-${GS_VERSION}/geoserver/data ~/geoserver_data
 rm -r  /tmp/geoserver-${GS_VERSION} && cp controlflow.properties ~/geoserver_data
 chmod -R a+rwx ~/geoserver_data
-docker run -d -p 8580:8080 --name "geoserver" -v $HOME/geoserver_data:/opt/geoserver/data_dir xavis/geoserver:${GS_VERSION}
+docker run -d -p 8580:8080 --name "geoserver" -v $HOME/geoserver_data:/opt/geoserver/data_dir xaviscript/geoserver:${GS_VERSION}
 
 ```
 Create an empty data directory to use to persist your data.
 
 ```shell
 mkdir -p ~/geoserver_data
-docker run -d -v $HOME/geoserver_data:/opt/geoserver/data_dir xavis/geoserver
+docker run -d -v $HOME/geoserver_data:/opt/geoserver/data_dir xaviscript/geoserver
 ```
 
 You need to ensure the ``geoserver_data`` directory has sufficient permissions
@@ -201,7 +201,7 @@ JAVA_OPTS="$JAVA_OPTS -Djava.awt.headless=true -XX:+UseConcMarkSweepGC -XX:+CMSC
 Then pass the `setenv.sh` file as a volume at `/usr/local/tomcat/bin/setenv.sh` when running:
 
 ```shell
-docker run -d -v $HOME/setenv.sh:/usr/local/tomcat/bin/setenv.sh xavis/geoserver
+docker run -d -v $HOME/setenv.sh:/usr/local/tomcat/bin/setenv.sh xaviscript/geoserver
 ```
 
 
